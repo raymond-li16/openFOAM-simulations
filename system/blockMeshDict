@@ -1,0 +1,108 @@
+FoamFile{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+convertToMeters 0.001;
+
+vertices
+(	
+	(0 -20 -1) 		// 0
+	(20 -20 -1) 	// 1
+	(0 -3 -1) 		// 2
+	(20 -3 -1) 		// 3
+	(-20 -0.1 -1) 	// 4
+	(-20 0.1 -1) 	// 5
+	(0 3 -1) 		// 6
+	(20 3 -1) 		// 7
+	(0 20 -1) 		// 8
+	(20 20 -1) 		// 9
+	(0 -20 1) 		// 10
+	(20 -20 1) 		// 11
+	(0 -3 1) 		// 12
+	(20 -3 1) 		// 13
+	(-20 -0.1 1) 	// 14
+	(-20 0.1 1) 	// 15
+	(0 3 1) 		// 16
+	(20 3 1) 		// 17
+	(0 20 1) 		// 18
+	(20 20 1) 		// 19
+	(-25 -1 -1)		// 20
+	(-25 1 -1)		// 21
+	(-25 -1 1)		// 22
+	(-25 1 1)		// 23
+	(-40 -1 -1)		// 24
+	(-40 1 -1)		// 25
+	(-40 -1 1)		// 26
+	(-40 1 1)		// 27
+	(100 -20 -1)    // 28
+    (100 -3 -1)     // 29
+    (100 3 -1)      // 30
+    (100 20 -1)     // 31
+    (100 -20 1)     // 32
+    (100 -3 1)      // 33
+    (100 3 1)       // 34
+    (100 20 1)      // 35
+);
+blocks
+(
+	hex (0 1 3 2 10 11 13 12) (100 50 1) simpleGrading (1 1 1) // bottom of chamber
+	hex (4 2 6 5 14 12 16 15) (100 50 1) simpleGrading (1 1 1) // nozzle diverging
+	hex (20 4 5 21 22 14 15 23) (100 50 1) simpleGrading (1 1 1) // nozzle converging
+	hex (2 3 7 6 12 13 17 16) (100 50 1) simpleGrading (1 1 1) // middle of chamber
+	hex (6 7 9 8 16 17 19 18) (100 50 1) simpleGrading (1 1 1) // top of chamber
+	hex (24 20 21 25 26 22 23 27) (100 50 1) simpleGrading (1 1 1) // gas line before nozzle
+	hex (1 28 29 3 11 32 33 13) (100 50 1) simpleGrading (1 1 1) // bottom of chamber, far away from nozzle
+    hex (3 29 30 7 13 33 34 17) (100 50 1) simpleGrading (1 1 1) // middle of chamber, far away from nozzle
+    hex (7 30 31 9 17 34 35 19) (100 50 1) simpleGrading (1 1 1) // top of chamber, far away from nozzle
+);
+// Bend the gasjet
+edges
+(
+	arc 5 6 (20 0.1 -1)
+	arc 15 16 (20 0.1 1)
+	arc 4 2 (20 -0.1 -1)
+	arc 14 12 (20 -0.1 1)
+);
+boundary
+(
+	inlet
+    {
+        type patch;
+        faces
+        (
+            (24 26 27 25)
+        );
+    }
+	gasjet
+    {
+        type wall;
+        faces
+        (
+            (5 15 16 6)
+			(4 2 12 14)
+			(21 23 15 5)
+			(20 4 14 22)
+			(25 27 23 21)
+			(24 20 22 26)
+        );
+    }
+	outlet
+	{
+		type patch;
+		faces
+        (
+            (6 16 18 8) // right above gasjet
+			(8 18 19 9) // top wall close to jet
+            (9 19 35 31) // top wall far from jet
+			(31 35 34 30) // far wall top section 
+			(30 34 33 29) // far wall middle section
+			(29 33 32 28) // far wall bottom section
+            (1 28 32 11) // bottom wall far from jet
+			(0 1 11 10) // bottom wall close to jet
+			(0 10 12 2) // right below gasjet
+        );
+	}
+);
